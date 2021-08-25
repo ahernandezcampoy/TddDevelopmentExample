@@ -59,8 +59,26 @@ class AccountsTest extends TddDevelopmentApplicationTests {
     * the balance as a BigDecimal instead of int. So we went (unconsciously) beyond was requested since the beginning
     */
     @Test
-    void ingressOkWith2Decimals() {
+    void ingressOkWith2DecimalPlaces() {
         ingressQuantityInEmptyAccountCheckBalance(new BigDecimal("100.45"), new BigDecimal("100.45"));
+    }
+
+    @Test
+    void ingressNotOkWith3DecimalPlaces() {
+        ingressQuantityInEmptyAccountCheckBalance(new BigDecimal("100.457"), new BigDecimal("0"));
+    }
+
+    /*
+     * This test doesn't adds any new functionality, so we could delete it
+     */
+    @Test
+    void ingressMaxQuantityAllowed() {
+        ingressQuantityInEmptyAccountCheckBalance(new BigDecimal("6000.00"), new BigDecimal("6000.00"));
+    }
+
+    @Test
+    void ingressMoreThanMaxQuantityAllowed() {
+        ingressQuantityInEmptyAccountCheckBalance(new BigDecimal("6000.01"), new BigDecimal("0"));
     }
 
     private void ingressQuantityInEmptyAccountCheckBalance(BigDecimal quantity, BigDecimal balance) {
