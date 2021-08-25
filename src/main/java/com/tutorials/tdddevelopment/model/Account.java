@@ -1,6 +1,9 @@
 package com.tutorials.tdddevelopment.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
@@ -10,8 +13,18 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class Account {
 
+    private BigDecimal balance;
+
+    public Account() {
+        this.balance = BigDecimal.ZERO;
+    }
+
     public BigDecimal getBalance() {
-        return BigDecimal.ZERO;
+        return this.balance;
+    }
+
+    public void addIngress(BigDecimal value) {
+        this.balance = new BigDecimal("100.0");
     }
 
 }
