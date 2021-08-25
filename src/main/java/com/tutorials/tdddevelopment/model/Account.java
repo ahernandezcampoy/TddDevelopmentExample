@@ -23,8 +23,8 @@ public class Account {
         return this.balance;
     }
 
-    public void addIngress(BigDecimal value) {
-        this.balance = new BigDecimal("100.0");
+    public void doIngress(BigDecimal value) {
+        this.balance = value;
     }
 
 }
