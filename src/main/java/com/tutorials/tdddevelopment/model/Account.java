@@ -15,7 +15,11 @@ public class Account {
     }
 
     public void doIngress(BigDecimal value) {
-        this.balance = this.balance.add(value);
+        if(value.signum() >= 0) {
+            this.balance = this.balance.add(value);
+        } else {
+            this.balance = BigDecimal.ZERO;
+        }
     }
 
 }

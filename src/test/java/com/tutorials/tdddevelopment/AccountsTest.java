@@ -21,26 +21,12 @@ class AccountsTest extends TddDevelopmentApplicationTests {
 
     @Test
     void ingress100InEmptyAccountBalanceIs100() {
-        // Arrange
-        Account account = new Account();
-
-        // Act
-        account.doIngress(new BigDecimal("100.0"));
-
-        // Assert
-        Assertions.assertEquals(new BigDecimal("100.0"), account.getBalance());
+        ingressQuantityInEmptyAccountCheckBalance(new BigDecimal("100"), new BigDecimal("100"));
     }
 
     @Test
     void ingress3000InEmptyAccountBalanceIs3000() {
-        // Arrange
-        Account account = new Account();
-
-        // Act
-        account.doIngress(new BigDecimal("3000.0"));
-
-        // Assert
-        Assertions.assertEquals(new BigDecimal("3000.0"), account.getBalance());
+        ingressQuantityInEmptyAccountCheckBalance(new BigDecimal("3000"), new BigDecimal("3000"));
     }
 
     @Test
@@ -54,13 +40,29 @@ class AccountsTest extends TddDevelopmentApplicationTests {
             Instead, we choose to use the existing method doIngress to achieve it.
             Minimum code to achieve the target.
          */
-        account.doIngress(new BigDecimal("100.0"));
+        account.doIngress(new BigDecimal("100"));
 
         // Act
-        account.doIngress(new BigDecimal("3000.0"));
+        account.doIngress(new BigDecimal("3000"));
 
         // Assert
-        Assertions.assertEquals(new BigDecimal("3100.0"), account.getBalance());
+        Assertions.assertEquals(new BigDecimal("3100"), account.getBalance());
+    }
+
+    @Test
+    void cannotIngressNegativeImports() {
+        ingressQuantityInEmptyAccountCheckBalance(new BigDecimal("-100"), new BigDecimal("0"));
+    }
+
+    private void ingressQuantityInEmptyAccountCheckBalance(BigDecimal quantity, BigDecimal balance) {
+        // Arrange
+        Account account = new Account();
+
+        // Act
+        account.doIngress(quantity);
+
+        // Assert
+        Assertions.assertEquals(balance, account.getBalance());
     }
 
 }
