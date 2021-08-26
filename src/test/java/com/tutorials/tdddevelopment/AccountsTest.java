@@ -50,14 +50,14 @@ class AccountsTest extends TddDevelopmentApplicationTests {
     }
 
     @Test
-    void cannotIngressNegativeImports() {
+    void cannotIngressNegativeQuantities() {
         ingressQuantityInEmptyAccountCheckBalance(new BigDecimal("-100"), new BigDecimal("0"));
     }
 
     /*
-    * This test worked directly (without code modifications) because we have directly defined
-    * the balance as a BigDecimal instead of int. So we went (unconsciously) beyond was requested since the beginning
-    */
+     * This test worked directly (without code modifications) because we have directly defined
+     * the balance as a BigDecimal instead of int. So we went (unconsciously) beyond was requested since the beginning
+     */
     @Test
     void ingressOkWith2DecimalPlaces() {
         ingressQuantityInEmptyAccountCheckBalance(new BigDecimal("100.45"), new BigDecimal("100.45"));
@@ -90,6 +90,200 @@ class AccountsTest extends TddDevelopmentApplicationTests {
 
         // Assert
         Assertions.assertEquals(balance, account.getBalance());
+    }
+
+    @Test
+    void withdrawal100WithBalance500MakesBalance400() {
+        withdrawQuantityInAccountCheckBalance(new BigDecimal("100"), new BigDecimal("500"), new BigDecimal("400"));
+    }
+
+    @Test
+    void withdrawal200WithBalance900MakesBalance700() {
+        withdrawQuantityInAccountCheckBalance(new BigDecimal("200"), new BigDecimal("900"), new BigDecimal("700"));
+    }
+
+    @Test
+    void doubleWithdrawalWithBalance1200MakesFinalBalance850() {
+        // Arrange
+        Account account = new Account();
+        account.doIngress(new BigDecimal("1200"));
+
+        // Act
+        account.doWithdrawal(new BigDecimal("200"));
+
+        // Assert
+        Assertions.assertEquals(new BigDecimal("1000"), account.getBalance());
+
+        // Act
+        account.doWithdrawal(new BigDecimal("150"));
+
+        // Assert
+        Assertions.assertEquals(new BigDecimal("850"), account.getBalance());
+    }
+
+    @Test
+    void withdrawal500WithBalance200MakesBalance200() {
+        withdrawQuantityInAccountCheckBalance(new BigDecimal("500"), new BigDecimal("200"), new BigDecimal("200"));
+    }
+
+    @Test
+    void cannotWithdrawNegativeQuantities() {
+        // Arrange
+        Account account = new Account();
+        account.doIngress(new BigDecimal("500"));
+
+        // Act
+        account.doWithdrawal(new BigDecimal("-100"));
+
+        // Assert
+        Assertions.assertEquals(new BigDecimal("500"), account.getBalance());
+    }
+
+    @Test
+    void withdrawOkWith2DecimalPlaces() {
+        withdrawQuantityInAccountCheckBalance(new BigDecimal("100.45"), new BigDecimal("500"), new BigDecimal("399.55"));
+    }
+
+    @Test
+    void withdrawNotOkWith3DecimalPlaces() {
+        withdrawQuantityInAccountCheckBalance(new BigDecimal("100.457"), new BigDecimal("500"), new BigDecimal("500"));
+    }
+
+    @Test
+    void withDrawMaxQuantityAllowed() {
+        // Arrange
+        Account account = new Account();
+        account.doIngress(new BigDecimal("3000"));
+        account.doIngress(new BigDecimal("4000"));
+
+        // Act
+        account.doWithdrawal(new BigDecimal("6000.00"));
+
+        // Assert
+        Assertions.assertEquals(new BigDecimal("1000.00"), account.getBalance());
+    }
+
+    @Test
+    void withdrawMoreThanMaxQuantityAllowed() {
+        // Arrange
+        Account account = new Account();
+        account.doIngress(new BigDecimal("3000"));
+        account.doIngress(new BigDecimal("4000"));
+
+        // Act
+        account.doWithdrawal(new BigDecimal("6000.01"));
+
+        // Assert
+        Assertions.assertEquals(new BigDecimal(7000), account.getBalance());
+    }
+
+    private void withdrawQuantityInAccountCheckBalance(BigDecimal quantity, BigDecimal startingBalance, BigDecimal endingBalance) {
+        // Arrange
+        Account account = new Account();
+        account.doIngress(startingBalance);
+
+        // Act
+        account.doWithdrawal(quantity);
+
+        // Assert
+        Assertions.assertEquals(endingBalance, account.getBalance());
+    }
+
+    @Test
+    void transfer100WithBalance500ToAccountWithBalance50MakesBalances400And150() {
+        // Arrange
+        Account accountA = new Account();
+        accountA.doIngress(new BigDecimal("500"));
+        Account accountB = new Account();
+        accountB.doIngress(new BigDecimal("50"));
+
+        // Act
+        accountA.doTransfer(accountB, new BigDecimal("100"));
+
+        // Assert
+        Assertions.assertEquals(new BigDecimal("400"), accountA.getBalance());
+        Assertions.assertEquals(new BigDecimal("150"), accountB.getBalance());
+    }
+
+    @Test
+    void transfer200WithBalance700ToAccountWithBalance150MakesBalances500And350() {
+        // Arrange
+        Account accountA = new Account();
+        accountA.doIngress(new BigDecimal("700"));
+        Account accountB = new Account();
+        accountB.doIngress(new BigDecimal("150"));
+
+        // Act
+        accountA.doTransfer(accountB, new BigDecimal("200"));
+
+        // Assert
+        Assertions.assertEquals(new BigDecimal("500"), accountA.getBalance());
+        Assertions.assertEquals(new BigDecimal("350"), accountB.getBalance());
+    }
+
+    @Test
+    void cannotTransferNegativeQuantity() {
+        // Arrange
+        Account accountA = new Account();
+        accountA.doIngress(new BigDecimal("500"));
+        Account accountB = new Account();
+        accountB.doIngress(new BigDecimal("50"));
+
+        // Act
+        accountA.doTransfer(accountB, new BigDecimal("-100"));
+
+        // Assert
+        Assertions.assertEquals(new BigDecimal("500"), accountA.getBalance());
+        Assertions.assertEquals(new BigDecimal("50"), accountB.getBalance());
+    }
+
+    @Test
+    void transfer3000WithBalance3500ToAccountWithBalance50MakesBalances500And3050() {
+        // Arrange
+        Account accountA = new Account();
+        accountA.doIngress(new BigDecimal("3500"));
+        Account accountB = new Account();
+        accountB.doIngress(new BigDecimal("50"));
+
+        // Act
+        accountA.doTransfer(accountB, new BigDecimal("3000"));
+
+        // Assert
+        Assertions.assertEquals(new BigDecimal("500"), accountA.getBalance());
+        Assertions.assertEquals(new BigDecimal("3050"), accountB.getBalance());
+    }
+
+    @Test
+    void transferMoreThanMaxQuantityAllowed() {
+        // Arrange
+        Account accountA = new Account();
+        accountA.doIngress(new BigDecimal("3500"));
+        Account accountB = new Account();
+        accountB.doIngress(new BigDecimal("50"));
+
+        // Act
+        accountA.doTransfer(accountB, new BigDecimal("3000.01"));
+
+        // Assert
+        Assertions.assertEquals(new BigDecimal("3500"), accountA.getBalance());
+        Assertions.assertEquals(new BigDecimal("50"), accountB.getBalance());
+    }
+
+    @Test
+    void transferMoreThanMaxQuantityPerDayAllowed() {
+        // Arrange
+        Account accountA = new Account();
+        accountA.doIngress(new BigDecimal("3500"));
+        Account accountB = new Account();
+        accountB.doIngress(new BigDecimal("50"));
+
+        // Act
+        accountA.doTransfer(accountB, new BigDecimal("2000"));
+        accountA.doTransfer(accountB, new BigDecimal("1200"));
+
+        // Assert
+        Assertions.assertEquals(new BigDecimal("1500"), accountA.getBalance());
+        Assertions.assertEquals(new BigDecimal("2050"), accountB.getBalance());
     }
 
 }

@@ -5,32 +5,70 @@ import java.math.RoundingMode;
 
 public class Account {
 
+    private final BigDecimal maxIngressWithdrawQuantity = new BigDecimal("6000");
+    private final BigDecimal maxTransferQuantity = new BigDecimal("3000");
+
     private BigDecimal balance;
+    private BigDecimal transferredInDay;
 
     public Account() {
         this.balance = BigDecimal.ZERO;
+        this.transferredInDay = BigDecimal.ZERO;
     }
 
     public BigDecimal getBalance() {
         return this.balance;
     }
 
-    public void doIngress(BigDecimal value) {
-        if(isValidQuantity(value)) {
-            this.balance = this.balance.add(value);
+    public void setBalance(BigDecimal value) {
+        this.balance = value;
+    }
+
+    public void doIngress(BigDecimal quantity) {
+        if (isValidQuantityToIngress(quantity)) {
+            this.balance = this.balance.add(quantity);
         } else {
             this.balance = BigDecimal.ZERO;
         }
     }
 
-    private boolean isValidQuantity(BigDecimal value) {
-        return decimalPlacesAllowed(value)
-                && value.signum() >= 0
-                && value.compareTo(new BigDecimal("6000")) <= 0;
+    public void doWithdrawal(BigDecimal quantity) {
+        if (isValidQuantityToWithdraw(quantity)) {
+            this.balance = this.balance.subtract(quantity);
+        }
     }
 
-    private boolean decimalPlacesAllowed(BigDecimal value) {
-        return value.compareTo(value.setScale(2, RoundingMode.CEILING)) == 0;
+    public void doTransfer(Account destinationAccount, BigDecimal quantity) {
+        transferredInDay = transferredInDay.add(quantity);
+        if (isValidQuantityToTransfer(quantity)) {
+            this.doWithdrawal(quantity);
+            destinationAccount.setBalance(destinationAccount.getBalance().add(quantity));
+        } else {
+            transferredInDay = transferredInDay.subtract(quantity);
+        }
+    }
+
+    private boolean isValidQuantityToIngress(BigDecimal quantity) {
+        return decimalPlacesAllowed(quantity)
+                && quantity.signum() >= 0
+                && quantity.compareTo(maxIngressWithdrawQuantity) <= 0;
+    }
+
+    private boolean isValidQuantityToWithdraw(BigDecimal quantity) {
+        return quantity.compareTo(this.balance) <= 0
+                && quantity.signum() >= 0
+                && decimalPlacesAllowed(quantity)
+                && quantity.compareTo(maxIngressWithdrawQuantity) <= 0;
+    }
+
+    private boolean decimalPlacesAllowed(BigDecimal quantity) {
+        return quantity.compareTo(quantity.setScale(2, RoundingMode.CEILING)) == 0;
+    }
+
+    private boolean isValidQuantityToTransfer(BigDecimal quantity) {
+        return quantity.signum() >= 0
+                && quantity.compareTo(maxTransferQuantity) <= 0
+                && transferredInDay.compareTo(maxTransferQuantity) <= 0;
     }
 
 }
