@@ -81,6 +81,19 @@ class AccountsTest extends TddDevelopmentApplicationTests {
         ingressQuantityInEmptyAccountCheckBalance(new BigDecimal("6000.01"), new BigDecimal("0"));
     }
 
+    @Test
+    void ingressMoreThanMaxQuantityAllowedInNonEmptyAccount() {
+        // Arrange
+        Account account = new Account();
+        account.doIngress(new BigDecimal("2350"));
+
+        // Act
+        account.doIngress(new BigDecimal("7000"));
+
+        // Assert
+        Assertions.assertEquals(new BigDecimal("2350"), account.getBalance());
+    }
+
     private void ingressQuantityInEmptyAccountCheckBalance(BigDecimal quantity, BigDecimal balance) {
         // Arrange
         Account account = new Account();

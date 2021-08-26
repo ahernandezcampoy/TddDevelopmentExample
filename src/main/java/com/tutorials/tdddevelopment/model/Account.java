@@ -27,8 +27,6 @@ public class Account {
     public void doIngress(BigDecimal quantity) {
         if (isValidQuantityToIngress(quantity)) {
             this.balance = this.balance.add(quantity);
-        } else {
-            this.balance = BigDecimal.ZERO;
         }
     }
 
