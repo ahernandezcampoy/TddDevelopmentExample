@@ -40,7 +40,7 @@ public class Account {
         transferredInDay = transferredInDay.add(quantity);
         if (isValidQuantityToTransfer(quantity)) {
             this.doWithdrawal(quantity);
-            destinationAccount.setBalance(destinationAccount.getBalance().add(quantity));
+            destinationAccount.doIngress(quantity);
         } else {
             transferredInDay = transferredInDay.subtract(quantity);
         }

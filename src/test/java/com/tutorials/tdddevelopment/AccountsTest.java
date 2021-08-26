@@ -96,7 +96,7 @@ class AccountsTest extends TddDevelopmentApplicationTests {
 
     private void ingressQuantityInEmptyAccountCheckBalance(BigDecimal quantity, BigDecimal balance) {
         // Arrange
-        Account account = new Account();
+Account account = new Account();
 
         // Act
         account.doIngress(quantity);
@@ -297,6 +297,38 @@ class AccountsTest extends TddDevelopmentApplicationTests {
         // Assert
         Assertions.assertEquals(new BigDecimal("1500"), accountA.getBalance());
         Assertions.assertEquals(new BigDecimal("2050"), accountB.getBalance());
+    }
+
+    @Test
+    void transferOkWith2DecimalPlaces() {
+        // Arrange
+        Account accountA = new Account();
+        accountA.doIngress(new BigDecimal("500"));
+        Account accountB = new Account();
+        accountB.doIngress(new BigDecimal("50"));
+
+        // Act
+        accountA.doTransfer(accountB, new BigDecimal("100.45"));
+
+        // Assert
+        Assertions.assertEquals(new BigDecimal("399.55"), accountA.getBalance());
+        Assertions.assertEquals(new BigDecimal("150.45"), accountB.getBalance());
+    }
+
+    @Test
+    void transferNotOkWith3DecimalPlaces() {
+        // Arrange
+        Account accountA = new Account();
+        accountA.doIngress(new BigDecimal("500"));
+        Account accountB = new Account();
+        accountB.doIngress(new BigDecimal("50"));
+
+        // Act
+        accountA.doTransfer(accountB, new BigDecimal("100.457"));
+
+        // Assert
+        Assertions.assertEquals(new BigDecimal("500"), accountA.getBalance());
+        Assertions.assertEquals(new BigDecimal("50"), accountB.getBalance());
     }
 
 }
