@@ -20,10 +20,6 @@ public class Account {
         return this.balance;
     }
 
-    public void setBalance(BigDecimal value) {
-        this.balance = value;
-    }
-
     public void doIngress(BigDecimal quantity) {
         if (isValidQuantityToIngress(quantity)) {
             this.balance = this.balance.add(quantity);
